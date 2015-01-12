@@ -1,0 +1,7 @@
+/* CSS declarations go here */
+div.item-description { max-height: 200px; overflow-y: scroll; }
+.item-container { margin-bottom: 20px; background-color: #eeeeee; border: solid 5px; }
+.item-container img { height: 150px; }
+.item-title { font-size: 1.1em; font-weight: bold; }
+.entity-row { height: 60px; }
+.entity-cell { float: left; height:140px; width: 250px; margin: 10px;}

@@ -1,0 +1,85 @@
+<head>
+  <title>Quick 'n Dirty Semantic Tagging</title>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/freebase/suggest/4_1/suggest.min.css" />
+  <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/freebase/suggest/4_1/suggest.min.js"></script>
+</head>
+
+<body>
+{{> loginButtons}}
+ <h2>Feeds</h2>  <a href="/currentItems">currentItems.json</a> 
+<br>
+{{> feedSelect }}
+{{> items}}
+</body>
+
+<template name="items">
+  <div id="items">
+    <button id="getMoreItems">Get More Feed Entries</button>
+    {{> pagesNav}}
+    {{> pages}}
+    {{> pagesNav}}
+  </div>
+</template>
+
+<template name="item">
+  <div class="row item-container" id="{{ _id }}" style="border-color:{{getItemStatusColor}}">
+    <table>
+      <tr>
+	<td><span class="item-title"><h3>{{feed_id}}</h3> <a href="{{link}}" target="_blank">{{title}}</a>
+	    <br>
+	    <button class="item-accept">{{getItemStatusMsg}}</button>
+	</span></td>
+	<td><img src="{{image_url}}"></td>
+      </tr>
+      <tr><td colspan="2"><div class="item-description">{{{description}}}</div></td></tr>
+      <tr><td colspan="2">
+	  <div class="entity-row">
+	    <div class="new-entity-cell">
+	      <button class="new-entity-accept">
+		Accept
+	      </button>
+	      <div>
+	      <li>
+	      <input  class="fbsuggest-name" type="text" onfocus="$(this).suggest({key:'{{freebase_key}}'})">
+	      </li>
+	      <li>
+	      <input class="fbsuggest-website" type="text">
+	      </li>
+	      <li>
+	      <input class="fbsuggest-wiki" type="text">
+	      </li>
+	      </div>
+	    </div>
+      {{#each entities}}
+      {{> entity }}
+      {{/each}}
+	  </div>
+      </td></tr>
+    </table>
+  </div>
+</template>
+
+<template name="entity">
+  <div class="entity-cell" style="background-color:{{getEntityStatusColor}}" data-item-id="{{ ../_id }}">
+    <button class="entity-accept">{{getEntityStatusMsg}}</button>
+    <ul>
+      <li>{{ name }}</li>
+      <li>{{ relevance }}</li>
+      {{ #if website }}
+      <li><a href="{{ website }}" alt="{{website}}">website</a></li>
+      {{ /if }}
+      {{ #if wikipedia }}
+      <li><a href="{{ wikipedia }}" alt="{{ wikipedia }}">wikipedia</a></li>
+      {{ /if }}
+    </ul>    
+  </div>
+</template>
+
+<template name="feedSelect">
+  <select id="feedSelect">
+    {{#each fhelp}}
+    <option>{{this.feed_id}}</option>
+    {{/each}}
+  </select>
+</template>
