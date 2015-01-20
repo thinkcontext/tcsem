@@ -13,8 +13,9 @@ cho_key = Meteor.settings.cho_key;
 alchemy_key = Meteor.settings.alchemy_key;
 refresh_interval = 4 * 3600 * 1000; // 4 hours
 feed_info = {
-    corpwatch: { link:'http://www.corpwatch.org/rssfeed.php' },
-    racialicious: {link:'http://www.racialicious.com/feed/'}
+//    corpwatch: { link:'http://www.corpwatch.org/rssfeed.php' },
+//    racialicious: {link:'http://www.racialicious.com/feed/'},
+    sumofus: {link:'http://sumofus.org/feed/'}
 };
 
 // add the first user to the FeedEntries group, subsequent ones will have to be added manually
@@ -150,8 +151,9 @@ function getCelPetition(url,feed_id,dt){
 
 function getCelPetitions(){
     console.log('getCelPetitions');
-    var cel_urls = { coworker: {link: "https://www.coworker.org/categories"},
-		    colorofchange: {link: "http://iam.colorofchange.org/categories"}};
+    var cel_urls = { coworker: {link: "https://www.coworker.org/categories"} //,
+		     // colorofchange: {link: "http://iam.colorofchange.org/categories"}
+		   };
     var petition_urls, purl,r,base_url,cel_url;
     try {
 	for(var j in cel_urls){
