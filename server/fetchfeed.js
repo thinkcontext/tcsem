@@ -1,6 +1,4 @@
 fetchFeed = function(fid,furl,cb){
-	console.log('fetchFeed',fid,furl);
-	//feed = 'https://eff.org/rss/updates.xml';
 	var FeedParser = Npm.require('feedparser')
 	, request = Npm.require('request');
 	
@@ -28,11 +26,9 @@ fetchFeed = function(fid,furl,cb){
 	    , item;
 	    var iid;
 	    while (item = stream.read()) {
-		console.log(item.link);
 		iid = item.link.replace(/\W/g,'');
 		item._id = iid
 		item.feed_id = fid;
-		console.log('getting ready');		
 		cb(iid,item);
 	    }
 	});

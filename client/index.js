@@ -2,7 +2,7 @@ Meteor.subscribe('feeds');
 Feeds = new Meteor.Collection("feeds");
 Template.feedSelect.helpers({
     fhelp: function(){
-	return _.union([{feed_id: 'All feeds'},{feed_id:'cho'},{feed_id:'coworker'},{feed_id:'colorofchange'}],Feeds.find().fetch().map(function(x){return {feed_id:x._id}}));
+	return _.union([{feed_id: 'All feeds'},{feed_id:'cho'},{feed_id:'coworker'},{feed_id:'colorofchange'},{feed_id:'effact'}],Feeds.find().fetch().map(function(x){return {feed_id:x._id}}));
     }
 });
 Template.feedSelect.events({
@@ -93,7 +93,8 @@ Template.item.helpers({
     }
 });
 Template.items.events({
-    "click #getMoreItems": function(){ Meteor.call("getMoreItems"); }
+    "click #refreshAll": function(){ 
+	Meteor.call("refreshAll"); }
 });
 
 Template.items.helpers({

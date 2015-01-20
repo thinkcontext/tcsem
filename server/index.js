@@ -7,38 +7,15 @@ Meteor.publish("feeds",function(){
 FeedEntries = new Meteor.Collection("feedentries");
 Petitions = new Meteor.Collection("petitions");
 
-//Calais = Npm.require('calais').Calais;
 //dbps = Npm.require('dbpedia-spotlight');
-// dbps.annotate(input,function(output){ console.log(output); });
+//dbps.annotate(input,function(output){ console.log(output); });
 cho_key = Meteor.settings.cho_key;
 alchemy_key = Meteor.settings.alchemy_key;
 refresh_interval = 4 * 3600 * 1000; // 4 hours
 feed_info = {
-    democracynow: { link: 'http://www.democracynow.org/democracynow.rss' },
     corpwatch: { link:'http://www.corpwatch.org/rssfeed.php' },
-    consumerist: { link:'http://consumerist.com/feed/' },
-    eff: { link: 'https://www.eff.org/rss/updates.xml'}
+    racialicious: {link:'http://www.racialicious.com/feed/'}
 };
-
-
-// propublica: {link: "http://feeds.propublica.org/propublica/main"}
-// http://thinkprogress.org/feed/
-// http://thinkprogress.org/election/issue/feed/
-// http://thinkprogress.org/sports/issue/feed/
-// http://thinkprogress.org/culture/issue/feed/
-// http://thinkprogress.org/world/issue/feed/
-// http://thinkprogress.org/lgbt/issue/feed/
-// http://thinkprogress.org/justice/issue/feed/
-// http://thinkprogress.org/health/issue/feed/
-// http://thinkprogress.org/economy/issue/feed/
-// http://thinkprogress.org/climate/issue/feed/
-// http://fair.org/feed/
-// http://www.racialicious.com/feed/
-// http://feministing.com/feed/
-// http://grist.org/feed/
-// http://blog.greenamerica.org/feed/
-// https://futureofmusic.org/feeds/futureblog
-// http://www.foodandwaterwatch.org/blogs/feed/
 
 // add the first user to the FeedEntries group, subsequent ones will have to be added manually
 Accounts.onCreateUser(
@@ -51,15 +28,7 @@ Accounts.onCreateUser(
 	return user;
     });
 
-Meteor.startup(function () {
-    
-    // collections = {
-    // 	feeds: Feeds,
-    // 	feedentries: FeedEntries
-    // }
-    
-    // Feed.collections(collections);
-    
+Meteor.startup(function () {        
     if(! cho_key || ! alchemy_key){
 	console.log('missing key',Meteor.settings);
 	exit();
@@ -67,20 +36,13 @@ Meteor.startup(function () {
 
     var feUpsert = Meteor.bindEnvironment(
 	function(id,doc){
-	    console.log('feInsert');
-	    FeedEntries.upsert({_id: id},doc,function(a,b){console.log('feInsert',a,b)});
+	    FeedEntries.upsert({_id: id},doc);
 	});
     
     for(var i in feed_info){ 
-	console.log('feed',i);
 	Feeds.upsert({_id:i},{_id: i, link: feed_info[i].link});
 
 	fetchFeed(i,feed_info[i].link,feUpsert);
-	
-	// Feed.createRssFeed({_id: i, 
-	// 		    link:feed_info[i].link,
-	// 		    refresh_interval: refresh_interval
-	// 		   });
     }
 
     var newFeedEntries = FeedEntries.find();
@@ -89,17 +51,10 @@ Meteor.startup(function () {
     	updated: feedEntryObserve
     });
 
-//    Feed.read();
-    Meteor.call('getCelPetitions')
-    getChoPetitions();
-
-    // var c = Petitions.find().count();
-    // if(c == 0)
-    // 	getCelPetitions();
-    // else if(c > 1000){
-    // 	del = Petitions.find({},{skip:1000,sort:{created_at:-1}});
-    // 	del.forEach(function(doc,i,c){ Petitions.remove(doc._id) });
-    // }
+    Meteor.call('refreshAll');
+    Meteor.setTimeout(function(){
+	Meteor.call('refreshAll');
+    }, 4 * 3600 * 1000);    
 });
 
 function stripW(txt){
@@ -112,7 +67,6 @@ function feedEntryObserve(doc){
 	if(!Items.findOne({_id: iid})){
 	    var t = cheerio.load(doc.description)('*').html();//text().replace(/\n/g,"<br>");
 	    doc.entities = entityEnhance(doc.title + ". " + t);
-	    console.log('feedEntryObserve',doc._id,iid);
 	    FeedEntries.update(doc._id,doc);	    
 	    doc.description = t;
 	    doc._id = iid;
@@ -131,9 +85,12 @@ HTTP.methods({
 });
 
 Meteor.methods({
-    getCelPetitions: function(){
+    refreshAll: function(){
 //	if(Meteor.user())
-	    getCelPetitions();
+	console.log('refreshAll');
+	getCelPetitions();
+	getEffPetitions();
+	getChoPetitions();
     }
 });
  
@@ -192,7 +149,7 @@ function getCelPetition(url,feed_id,dt){
 }
 
 function getCelPetitions(){
-    //console.log('getMorePetitions');
+    console.log('getCelPetitions');
     var cel_urls = { coworker: {link: "https://www.coworker.org/categories"},
 		    colorofchange: {link: "http://iam.colorofchange.org/categories"}};
     var petition_urls, purl,r,base_url,cel_url;
@@ -204,7 +161,7 @@ function getCelPetitions(){
 	    $ = cheerio.load(r.content);
 	    petition_urls = $("a[href*='/petitions/']");
 	    
-	    console.log('petitions',petition_urls.length);
+	    //console.log('petitions',petition_urls.length);
 	    var dt = new Date;
 	    for(var i=0; i < petition_urls.length; i++){
 		dt = new Date(dt - 1);
@@ -224,6 +181,7 @@ function getCelPetitions(){
 }
 
 function getChoPetitions(){
+    console.log('getChoPetitions');
     var ch_url = 'https://www.change.org/petitions?view=recommended&hash=featured&hash_prefix=&first_request=true&list_type=default';
     var pids = [];
     try {
@@ -242,7 +200,6 @@ function getChoPetitions(){
 	console.log(e);
 	return false;
     }
-    console.log('pids',pids);
     if(!(pids && pids.join && pids.length > 0))
 	return false
     var apiUrl = 'http://api.change.org/v1/petitions';
@@ -280,5 +237,38 @@ function getChoPetitions(){
 		Items.insert(item);
 	    }
 	}
+    }
+
+}
+function getEffPetitions(){
+    console.log('getEffPetitions');
+    try{
+	var pets, url = 'https://act.eff.org/action', dt = new Date;
+	r = HTTP.get(url);
+	$ = cheerio.load(r.content);
+	pets = $('div.text').map(function(){ 
+	    return {title: this.find('h3').text(), description: this.find('p').text(), url: this.find('a').attr('href')} });
+	pets.forEach(function(x){
+	    var ret, iid = stripW(x.url);
+	    if(! Items.findOne({_id: iid})){
+		if(x.url.match(/^\/action/)){
+		    ret = { _id: iid
+			    , title: x.title
+			    , description: x.description
+			    , link: 'https://act.eff.org' + x.url
+			    , publish:false
+			    , date: dt
+			    , feed_id: 'effact'
+			    , entities: []
+			  };
+		    entities = entityEnhance(ret.title + ". " + ret.description);
+		    if(entities && entities.length > 0)
+			ret.entities = entities;
+		    Items.insert(ret);		
+		}
+	    }
+	});
+    } catch(e){ 
+	console.log('getEffPetitions',e);
     }
 }
