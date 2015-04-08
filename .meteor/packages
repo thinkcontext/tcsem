@@ -11,3 +11,9 @@ http
 alethes:pages@=1.7.1
 cfs:http-methods
 mrt:cheerio
+danimal:feedparser
+froatsnook:request
+meteorhacks:npm
+
+
+npm-container

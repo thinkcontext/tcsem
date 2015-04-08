@@ -14,8 +14,12 @@ alchemy_key = Meteor.settings.alchemy_key;
 refresh_interval = 4 * 3600 * 1000; // 4 hours
 feed_info = {
 //    corpwatch: { link:'http://www.corpwatch.org/rssfeed.php' },
-//    racialicious: {link:'http://www.racialicious.com/feed/'},
-    sumofus: {link:'http://sumofus.org/feed/'}
+    sumofus: {link:'http://sumofus.org/feed/'},
+    consumerist: {link:'http://consumerist.com/feed/'},
+    mediate:{link:'http://www.mediaite.com/feed'},
+	racialicious:{link:'http://www.racialicious.com/feed'},
+	feministing:{link:'http://feministing.com/feed/'},
+	grist:{link:'http://feeds.grist.org/rss/gristfeed'}
 };
 
 // add the first user to the FeedEntries group, subsequent ones will have to be added manually
@@ -41,9 +45,8 @@ Meteor.startup(function () {
 	});
     
     for(var i in feed_info){ 
-	Feeds.upsert({_id:i},{_id: i, link: feed_info[i].link});
-
-	fetchFeed(i,feed_info[i].link,feUpsert);
+		Feeds.upsert({_id:i},{_id: i, link: feed_info[i].link});
+		fetchFeed(i,feed_info[i].link,feUpsert);
     }
 
     var newFeedEntries = FeedEntries.find();

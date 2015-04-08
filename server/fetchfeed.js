@@ -1,6 +1,6 @@
 fetchFeed = function(fid,furl,cb){
-	var FeedParser = Npm.require('feedparser')
-	, request = Npm.require('request');
+	//var FeedParser = Npm.require('feedparser')
+	//, request = Npm.require('request');
 	
 	var req = request(furl),
 	feedparser = new FeedParser();
